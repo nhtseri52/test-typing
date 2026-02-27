@@ -1,10 +1,29 @@
-/* Chỉ thêm các phần mới/sửa */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-.modal-card { background: #fff; padding: 40px; border-radius: 8px; width: 320px; text-align: center; }
-.modal-card input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; box-sizing: border-box; }
-.pro-table { width: 100%; background: #fff; border-collapse: collapse; margin-top: 20px; border-radius: 5px; overflow: hidden; }
-.pro-table th { background: #445a71; color: #fff; padding: 15px; }
-.pro-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-weight: bold; }
-.active { background: #5cb85c !important; color: white; }
-.btn-reg { background: #f0ad4e !important; color: white; }
-.btn-close { background: #999 !important; color: white; margin-top: 10px; }
+body { background: #d1e0f0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+.top-nav { background: #fff; padding: 10px 10%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #abc1d9; }
+.main-container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+/* Khung chữ gõ */
+.word-box { 
+    background: #fff; border: 1px solid #ccd6e0; border-radius: 6px; 
+    padding: 20px; font-size: 26px; line-height: 50px; height: 100px; 
+    overflow: hidden; text-align: left; display: flex; flex-wrap: wrap; gap: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+.word-box span { padding: 0 5px; border-radius: 4px; transition: 0.2s; }
+.word-box span.active { background: #e2e2e2; border-bottom: 2px solid #5cb85c; }
+.word-box span.correct { color: #5cb85c; }
+.word-box span.wrong { background: #d9534f; color: #fff; }
+
+/* Bảng xếp hạng chuyên nghiệp */
+.leaderboard-container { margin-top: 40px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+.leaderboard-container h3 { background: #445a71; color: #fff; margin: 0; padding: 15px; text-align: center; }
+.pro-table { width: 100%; border-collapse: collapse; }
+.pro-table th { background: #f8f9fa; color: #666; padding: 12px; font-size: 13px; text-transform: uppercase; border-bottom: 2px solid #eee; }
+.pro-table td { padding: 15px 12px; border-bottom: 1px solid #eee; text-align: center; font-size: 15px; color: #333; }
+.pro-table tr:hover { background: #f1f5f9; }
+.flag-icon { width: 20px; vertical-align: middle; border-radius: 2px; }
+.time-ago { font-size: 12px; color: #999; font-style: italic; }
+
+/* Modal tinh chỉnh */
+.modal-card { border-top: 5px solid #5cb85c; }
+.res-grid { display: flex; justify-content: space-around; margin: 20px 0; background: #f9f9f9; padding: 15px; border-radius: 5px; }
