@@ -2,67 +2,67 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>SpeedType Pro - Clone 10FastFingers</title>
+    <title>SpeedType Pro - Kiểm tra tốc độ gõ</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="top-nav">
-        <div class="lang-selector">
-            <button onclick="setLang('vi')" id="btn-vi" class="active">Vietnamese</button>
-            <button onclick="setLang('en')" id="btn-en">English</button>
+    <div class="top-bar">
+        <div class="lang-nav">
+            <button onclick="changeLang('vi')" id="lang-vi" class="active">Vietnamese</button>
+            <button onclick="changeLang('en')" id="lang-en">English</button>
         </div>
-        <div class="auth-trigger">
-            <span id="user-status">Khách</span>
-            <button onclick="openAuth()">Đăng nhập/Đăng ký</button>
+        <div class="user-nav">
+            <span id="display-name">Khách</span>
+            <button onclick="toggleAuth()" class="btn-login">Đăng nhập</button>
         </div>
     </div>
 
-    <div class="main-wrapper">
-        <div id="word-display" class="word-container"></div>
+    <div class="wrapper">
+        <div id="word-display" class="word-box"></div>
 
-        <div class="input-bar">
+        <div class="control-panel">
             <input type="text" id="word-input" autocomplete="off" autofocus>
-            <div id="timer-box">1:00</div>
-            <button id="restart-btn" onclick="resetGame()">↻</button>
+            <div id="timer">1:00</div>
+            <button onclick="resetGame()" class="btn-restart">↻</button>
         </div>
 
-        <div id="result-overlay" class="overlay">
-            <div class="result-card">
-                <h2>Kết quả kiểm tra gõ phím</h2>
-                <div class="stats-row">
-                    <div class="stat-item">WPM: <h1 id="final-wpm">0</h1></div>
-                    <div class="stat-item">Độ chính xác: <h2 id="final-acc">0%</h2></div>
+        <div id="result-popup" class="modal">
+            <div class="modal-content">
+                <h2>Kết quả của bạn</h2>
+                <div class="result-stats">
+                    <div class="stat">WPM: <h1 id="res-wpm">0</h1></div>
+                    <div class="stat">Chính xác: <h2 id="res-acc">0%</h2></div>
                 </div>
-                <div class="details">
-                    <p>Phím đã gõ: <span id="total-keys">0</span></p>
-                    <p>Từ đúng: <span id="correct-words">0</span></p>
-                    <p>Từ sai: <span id="wrong-words">0</span></p>
+                <div class="result-detail">
+                    <p>Phím gõ: <span id="res-keys">0</span></p>
+                    <p>Từ đúng: <span id="res-correct">0</span></p>
+                    <p>Từ sai: <span id="res-wrong">0</span></p>
                 </div>
-                <button class="close-btn" onclick="closeResult()">Thử lại</button>
+                <button onclick="closeResult()" class="btn-again">Thử lại</button>
             </div>
         </div>
 
-        <div id="auth-modal" class="overlay">
-            <div class="auth-card">
-                <h3>Tài khoản SpeedType</h3>
+        <div id="auth-modal" class="modal">
+            <div class="modal-content auth-form">
+                <h3>Thành viên</h3>
                 <input type="email" id="email" placeholder="Email">
                 <input type="password" id="password" placeholder="Mật khẩu">
                 <div class="auth-btns">
                     <button onclick="handleAuth('login')">Đăng nhập</button>
-                    <button onclick="handleAuth('signup')" class="secondary">Đăng ký</button>
+                    <button onclick="handleAuth('signup')" class="btn-reg">Đăng ký</button>
                 </div>
-                <button class="cancel-btn" onclick="closeAuth()">Đóng</button>
+                <button onclick="toggleAuth()" class="btn-close">Hủy</button>
             </div>
         </div>
 
         <div class="leaderboard">
             <h3>🏆 BẢNG XẾP HẠNG</h3>
-            <table id="leaderboard-table">
-                <thead><tr><th>#</th><th>Tên</th><th>WPM</th><th>Quốc gia</th></tr></thead>
-                <tbody id="leaderboard-data"></tbody>
+            <table>
+                <thead><tr><th>Hạng</th><th>Tên</th><th>WPM</th><th>Quốc gia</th></tr></thead>
+                <tbody id="leaderboard-body"></tbody>
             </table>
         </div>
     </div>
