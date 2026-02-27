@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>SpeedType Pro - Leaderboard</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #111; color: #eee; font-family: sans-serif; text-align: center; }
+        .container { max-width: 700px; margin: auto; padding: 20px; }
+        #word-display { font-size: 24px; background: #222; padding: 20px; border-radius: 10px; margin: 20px 0; min-height: 40px; }
+        input { width: 80%; padding: 10px; border-radius: 5px; border: none; font-size: 18px; }
+        button { padding: 10px 20px; cursor: pointer; background: #e2b714; border: none; border-radius: 5px; font-weight: bold; margin: 5px; }
+        table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #333; }
+        #auth-box { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
@@ -11,34 +20,24 @@
 <body>
     <div class="container">
         <div id="auth-box">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Mật khẩu">
+            <input type="email" id="email" placeholder="Email" style="width: 40%;">
+            <input type="password" id="password" placeholder="Pass" style="width: 40%;">
+            <br>
             <button onclick="handleAuth('signup')">Đăng ký</button>
             <button onclick="handleAuth('login')">Đăng nhập</button>
             <p id="user-info">Chưa đăng nhập</p>
         </div>
 
-        <hr>
-        <h1>⌨️ SPEED TYPE</h1>
+        <h1>⌨️ SPEED TYPE PRO</h1>
         <div id="word-display">Đang tải từ...</div>
-        <input type="text" id="word-input" placeholder="Gõ tại đây..." autofocus>
+        <input type="text" id="word-input" placeholder="Bắt đầu gõ..." autofocus>
         
-        <div class="stats">
-            <span>WPM: <b id="wpm">0</b></span>
-            <span>Thời gian: <b id="timer">60</b>s</span>
-        </div>
+        <p>WPM: <b id="wpm">0</b> | Thời gian: <b id="timer">60</b>s</p>
 
         <div id="leaderboard">
-            <h3>🏆 TOP GLOBAL</h3>
-            <table id="leaderboard-table" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Hạng</th>
-                        <th>Email</th>
-                        <th>WPM</th>
-                        <th>Quốc gia</th>
-                    </tr>
-                </thead>
+            <h3>🏆 BẢNG XẾP HẠNG TOÀN CẦU</h3>
+            <table>
+                <thead><tr><th>Hạng</th><th>Tên</th><th>WPM</th><th>Quốc gia</th></tr></thead>
                 <tbody id="leaderboard-body"></tbody>
             </table>
         </div>
