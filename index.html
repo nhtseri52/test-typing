@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>SpeedType Pro - Professional</title>
+    <title>SpeedType Pro - Profile & Typing</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -14,58 +14,56 @@
             <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
             <button onclick="changeLang('en')" id="btn-en">English</button>
         </div>
-        <div class="nav-right" id="user-info">
-            </div>
+        <div class="nav-right" id="user-status">
+            <span class="not-logged">Chưa đăng ký tài khoản</span>
+        </div>
     </div>
 
     <div class="game-container">
         <div id="word-display" class="word-box"></div>
 
         <div class="input-panel">
-            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Gõ tại đây...">
+            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Bắt đầu gõ...">
             <div id="timer">1:00</div>
             <button onclick="resetGame()" class="btn-reset">↻</button>
         </div>
 
         <div class="leaderboard-section">
-            <div class="lb-header">🏆 BẢNG XẾP HẠNG CAO THỦ</div>
+            <div class="lb-header">🏆 TOP CAO THỦ</div>
             <table class="lb-table">
                 <thead>
-                    <tr>
-                        <th>TOP</th>
-                        <th>NAME</th>
-                        <th>WPM</th>
-                        <th>NATION</th>
-                        <th>LANGUAGE</th>
-                        <th>TIME</th>
-                    </tr>
+                    <tr><th>TOP</th><th>NAME</th><th>WPM</th><th>NATION</th><th>LANG</th><th>TIME</th></tr>
                 </thead>
                 <tbody id="leaderboard-body"></tbody>
             </table>
         </div>
 
-        <div class="auth-wrapper" id="auth-forms">
-            <div class="auth-box">
-                <h3>ĐĂNG NHẬP</h3>
-                <input type="email" id="login-email" placeholder="Email">
-                <input type="password" id="login-pass" placeholder="Mật khẩu">
-                <button onclick="handleAuth('login')" class="btn-auth">Vào hệ thống</button>
-            </div>
-            <div class="auth-box">
-                <h3>ĐĂNG KÝ MỚI</h3>
-                <input type="email" id="reg-email" placeholder="Email">
-                <input type="password" id="reg-pass" placeholder="Mật khẩu (6 ký tự)">
-                <button onclick="handleAuth('signup')" class="btn-auth btn-reg">Tạo tài khoản</button>
-            </div>
+        <div id="profile-section" class="profile-card" style="display: none;">
+            <h3>HỒ SƠ CỦA BẠN</h3>
+            <p>📅 Tài khoản được tạo vào: <span id="p-created">...</span></p>
+            <p>👤 Tên tài khoản: <span id="p-name">...</span></p>
+            <p>🔑 Mật khẩu: <span>******</span></p>
+            <hr>
+            <h4>Đổi mật khẩu</h4>
+            <input type="password" id="old-pass" placeholder="Mật khẩu cũ">
+            <input type="password" id="new-pass" placeholder="Mật khẩu mới">
+            <button onclick="changePassword()" class="btn-change">Xác nhận đổi</button>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">Đăng xuất</button>
         </div>
-    </div>
 
-    <div id="res-modal" class="modal">
-        <div class="modal-content">
-            <h2>KẾT QUẢ</h2>
-            <h1 id="res-wpm">0 WPM</h1>
-            <p id="res-msg"></p>
-            <button onclick="closeModal()">Đóng</button>
+        <div class="auth-wrapper" id="auth-forms">
+            <div class="auth-box login">
+                <h3>ĐĂNG NHẬP</h3>
+                <input type="email" id="l-email" placeholder="Email">
+                <input type="password" id="l-pass" placeholder="Mật khẩu">
+                <button onclick="handleAuth('login')">Vào hệ thống</button>
+            </div>
+            <div class="auth-box register">
+                <h3>ĐĂNG KÝ</h3>
+                <input type="email" id="r-email" placeholder="Email">
+                <input type="password" id="r-pass" placeholder="Mật khẩu">
+                <button onclick="handleAuth('signup')">Tạo tài khoản</button>
+            </div>
         </div>
     </div>
 
