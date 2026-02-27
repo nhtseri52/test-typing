@@ -1,26 +1,10 @@
-body { background: #d1e0f0; font-family: Arial, sans-serif; margin: 0; }
-.top-bar { background: #fff; padding: 10px 10%; display: flex; justify-content: space-between; border-bottom: 1px solid #acc1d9; }
-.wrapper { max-width: 800px; margin: 40px auto; padding: 0 15px; }
-
-/* Word Box */
-.word-box { 
-    background: #fff; border: 1px solid #ccd6e0; border-radius: 4px; 
-    padding: 15px; font-size: 24px; line-height: 48px; height: 96px; 
-    overflow: hidden; text-align: left; display: flex; flex-wrap: wrap; gap: 8px;
-}
-.word-box span { padding: 0 4px; border-radius: 3px; }
-.word-box span.active { background: #ddd; }
-.word-box span.correct { color: #5cb85c; }
-.word-box span.wrong { background: #d9534f; color: #fff; }
-
-/* Control Panel */
-.control-panel { background: #abc1d9; padding: 15px; display: flex; gap: 10px; border-radius: 4px; margin-top: 10px; }
-#word-input { flex: 1; height: 40px; font-size: 20px; border: 1px solid #999; border-radius: 4px; padding-left: 10px; }
-#timer { background: #445a71; color: #fff; padding: 8px 20px; border-radius: 4px; font-size: 20px; font-weight: bold; }
-
-/* Modals */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; justify-content: center; align-items: center; }
-.modal-content { background: #fff; padding: 30px; border-radius: 8px; text-align: center; width: 350px; }
-.auth-form input { width: 90%; padding: 10px; margin: 5px 0; }
-.active { background: #5cb85c !important; color: #fff; }
-button { cursor: pointer; border: none; padding: 10px; border-radius: 4px; }
+/* Chỉ thêm các phần mới/sửa */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+.modal-card { background: #fff; padding: 40px; border-radius: 8px; width: 320px; text-align: center; }
+.modal-card input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; box-sizing: border-box; }
+.pro-table { width: 100%; background: #fff; border-collapse: collapse; margin-top: 20px; border-radius: 5px; overflow: hidden; }
+.pro-table th { background: #445a71; color: #fff; padding: 15px; }
+.pro-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; font-weight: bold; }
+.active { background: #5cb85c !important; color: white; }
+.btn-reg { background: #f0ad4e !important; color: white; }
+.btn-close { background: #999 !important; color: white; margin-top: 10px; }
