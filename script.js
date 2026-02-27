@@ -11,40 +11,28 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-let words = ["độc", "lập", "tự", "do", "hạnh", "phúc", "công", "nghệ", "bàn", "phím", "tốc", "độ", "thách", "thức"];
+// Danh sách từ vựng Tiếng Việt
+const words = ["kiên trì", "nỗ lực", "thành công", "sáng tạo", "việt nam", "công nghệ", "lập trình", "tốc độ", "bàn phím", "thương hiệu"];
 let timer = 60, isPlaying = false, score = 0, interval;
-let userCountry = "Unknown", userCountryCode = "vn";
+let userCountry = "Việt Nam", userCode = "vn";
 
-// Lấy quốc gia
+// Lấy quốc gia tự động
 fetch('https://ipapi.co/json/').then(r => r.json()).then(d => {
-    userCountry = d.country_name;
-    userCountryCode = d.country_code.toLowerCase();
+    userCountry = d.country_name === "Vietnam" ? "Việt Nam" : d.country_name;
+    userCode = d.country_code.toLowerCase();
 });
 
-// Auth
-async function handleAuth(type) {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    try {
-        if(type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
-        else await auth.signInWithEmailAndPassword(email, pass);
-        document.getElementById('user-info').innerText = "Chào: " + email;
-    } catch (e) { alert(e.message); }
-}
-
-// Game Logic
 function renderWords() {
-    const random = Array.from({length: 10}, () => words[Math.floor(Math.random() * words.length)]);
+    const random = Array.from({length: 8}, () => words[Math.floor(Math.random() * words.length)]);
     document.getElementById('word-display').innerText = random.join(" ");
 }
 
 document.getElementById('word-input').addEventListener('input', (e) => {
     if(!isPlaying) { isPlaying = true; startTimer(); }
-    const input = e.target.value.trim();
-    const display = document.getElementById('word-display').innerText.split(" ")[0];
-
-    if(input === display) {
-        score += input.length;
+    const val = e.target.value.trim();
+    const current = document.getElementById('word-display').innerText.split(" ")[0];
+    if(val === current) {
+        score += val.length;
         e.target.value = "";
         renderWords();
         document.getElementById('wpm').innerText = Math.round((score/5) / ((60-timer)/60) || 0);
@@ -55,7 +43,7 @@ function startTimer() {
     interval = setInterval(() => {
         timer--;
         document.getElementById('timer').innerText = timer;
-        if(timer === 0) {
+        if(timer <= 0) {
             clearInterval(interval);
             isPlaying = false;
             saveScore();
@@ -64,29 +52,32 @@ function startTimer() {
 }
 
 async function saveScore() {
-    const user = auth.currentUser;
-    const finalWpm = parseInt(document.getElementById('wpm').innerText);
-    if(user && finalWpm > 0) {
+    const u = auth.currentUser;
+    const w = parseInt(document.getElementById('wpm').innerText);
+    if(u && w > 0) {
         await db.collection("leaderboard").add({
-            email: user.email,
-            wpm: finalWpm,
+            name: u.email.split('@')[0],
+            wpm: w,
             country: userCountry,
-            code: userCountryCode,
+            code: userCode,
             time: Date.now()
         });
-        loadLeaderboard();
-    }
+        alert("Đã lưu điểm thành công!");
+        loadBoard();
+    } else { alert("Hết giờ! Đăng nhập để lưu điểm nhé."); }
 }
 
-async function loadLeaderboard() {
-    const snapshot = await db.collection("leaderboard").orderBy("wpm", "desc").limit(10).get();
+async function loadBoard() {
+    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(10).get();
     let html = "";
-    snapshot.forEach((doc, i) => {
+    snap.forEach((doc, i) => {
         const d = doc.data();
-        html += `<tr><td>${i+1}</td><td>${d.email}</td><td>${d.wpm}</td><td>${d.country} 🏳️</td></tr>`;
+        // Hiển thị cờ quốc gia bằng link ảnh
+        const flag = `https://flagcdn.com/20x15/${d.code}.png`;
+        html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.wpm}</td><td><img src="${flag}"> ${d.country}</td></tr>`;
     });
     document.getElementById('leaderboard-body').innerHTML = html;
 }
 
 renderWords();
-loadLeaderboard();
+loadBoard();
