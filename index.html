@@ -2,44 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SpeedType Pro - Global Ranking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedType Pro - Global 100</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="header">
+    <div class="nav-bar">
         <div class="nav-left">
             <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
             <button onclick="changeLang('en')" id="btn-en">English</button>
         </div>
         <div id="auth-status" class="nav-right">
-            <span class="no-user">Not Signed In</span>
+            <span class="no-user">Guest Mode</span>
         </div>
     </div>
 
-    <div class="main-content">
+    <div class="container">
         <div id="word-display" class="word-box"></div>
 
-        <div class="input-area">
-            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Start typing here...">
+        <div class="input-row">
+            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Type here...">
             <div id="timer">1:00</div>
             <button onclick="resetGame()" class="refresh-btn">↻</button>
         </div>
 
-        <div class="leaderboard-section">
+        <div class="leaderboard-card">
             <div class="lb-header">🌍 TOP 100 WORLD RANKINGS</div>
-            <div class="scroll-table">
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>RANK</th>
-                            <th>NAME</th>
+                            <th>USERNAME</th>
                             <th>WPM</th>
                             <th>NATION</th>
                             <th>LANG</th>
-                            <th>TIME</th>
+                            <th>STATUS</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-data"></tbody>
@@ -47,40 +48,52 @@
             </div>
         </div>
 
-        <div id="auth-container" class="auth-tabs">
-            <div class="tabs">
-                <button id="tab-login-btn" class="active" onclick="switchTab('login')">LOGIN</button>
-                <button id="tab-reg-btn" onclick="switchTab('reg')">REGISTER</button>
-            </div>
+        <hr class="divider">
+
+        <div class="account-section">
             
-            <div id="login-form" class="auth-box">
-                <input type="email" id="l-email" placeholder="Email">
-                <input type="password" id="l-pass" placeholder="Password">
-                <button onclick="handleAuth('login')" class="btn-primary">Login</button>
+            <div id="auth-forms" class="auth-tabs">
+                <div class="tabs-header">
+                    <button id="tab-login-btn" class="active" onclick="switchTab('login')">LOGIN</button>
+                    <button id="tab-reg-btn" onclick="switchTab('reg')">REGISTER</button>
+                </div>
+                
+                <div id="login-form" class="auth-box">
+                    <input type="email" id="l-email" placeholder="Gmail Address">
+                    <input type="password" id="l-pass" placeholder="Password">
+                    <button onclick="handleAuth('login')" class="btn-primary">Login</button>
+                </div>
+
+                <div id="reg-form" class="auth-box" style="display:none;">
+                    <input type="text" id="r-user" placeholder="Username (Display Name)">
+                    <input type="email" id="r-email" placeholder="Gmail Address">
+                    <input type="password" id="r-pass" placeholder="Password (min 6 chars)">
+                    <button onclick="handleAuth('signup')" class="btn-success">Create Account</button>
+                </div>
             </div>
 
-            <div id="reg-form" class="auth-box" style="display:none;">
-                <input type="email" id="r-email" placeholder="Email">
-                <input type="password" id="r-pass" placeholder="Password (min 6 chars)">
-                <button onclick="handleAuth('signup')" class="btn-success">Create Account</button>
+            <div id="profile-section" class="profile-card" style="display:none;">
+                <div class="p-header">
+                    <h3>👤 ACCOUNT PROFILE</h3>
+                    <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">Logout</button>
+                </div>
+                <div class="p-grid">
+                    <div class="p-item"><b>Username:</b> <span id="p-username"></span></div>
+                    <div class="p-item"><b>Email:</b> <span id="p-email"></span></div>
+                    <div class="p-item"><b>Joined:</b> <span id="p-date"></span></div>
+                </div>
+                <div class="p-security">
+                    <h4>Change Password</h4>
+                    <div class="p-inputs">
+                        <input type="password" id="old-p" placeholder="Current Password">
+                        <input type="password" id="new-p" placeholder="New Password">
+                        <button onclick="changePassword()" class="btn-update">Update</button>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div id="profile-section" class="profile-card" style="display:none;">
-            <h3>MY ACCOUNT</h3>
-            <div class="p-info">
-                <p>👤 <b>Username:</b> <span id="p-username">...</span></p>
-                <p>📅 <b>Joined:</b> <span id="p-date">...</span></p>
-            </div>
-            <div class="p-security">
-                <h4>Change Password</h4>
-                <input type="password" id="old-p" placeholder="Old password">
-                <input type="password" id="new-p" placeholder="New password">
-                <button onclick="changePassword()" class="btn-update">Update Password</button>
-            </div>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">Logout</button>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
