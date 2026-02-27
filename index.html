@@ -2,47 +2,67 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Kiểm tra đánh máy - SpeedType Pro</title>
+    <title>SpeedType Pro - Clone 10FastFingers</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="header-bar">
-        <button class="lang-btn">Vietnamese ▾</button>
-        <span>Chuyển đổi ngôn ngữ kiểm tra đánh máy</span>
+    <div class="top-nav">
+        <div class="lang-selector">
+            <button onclick="setLang('vi')" id="btn-vi" class="active">Vietnamese</button>
+            <button onclick="setLang('en')" id="btn-en">English</button>
+        </div>
+        <div class="auth-trigger">
+            <span id="user-status">Khách</span>
+            <button onclick="openAuth()">Đăng nhập/Đăng ký</button>
+        </div>
     </div>
 
-    <div class="main-container">
-        <div id="word-box" class="word-display">
-            </div>
+    <div class="main-wrapper">
+        <div id="word-display" class="word-container"></div>
 
-        <div class="input-section">
+        <div class="input-bar">
             <input type="text" id="word-input" autocomplete="off" autofocus>
-            <div id="timer" class="timer-box">1:00</div>
-            <button id="reset-btn" class="reload-btn">↻</button>
+            <div id="timer-box">1:00</div>
+            <button id="restart-btn" onclick="resetGame()">↻</button>
         </div>
 
-        <div id="auth-section" class="auth-box">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Mật khẩu">
-            <button onclick="handleAuth('login')">Đăng nhập</button>
-            <button onclick="handleAuth('signup')">Đăng ký</button>
+        <div id="result-overlay" class="overlay">
+            <div class="result-card">
+                <h2>Kết quả kiểm tra gõ phím</h2>
+                <div class="stats-row">
+                    <div class="stat-item">WPM: <h1 id="final-wpm">0</h1></div>
+                    <div class="stat-item">Độ chính xác: <h2 id="final-acc">0%</h2></div>
+                </div>
+                <div class="details">
+                    <p>Phím đã gõ: <span id="total-keys">0</span></p>
+                    <p>Từ đúng: <span id="correct-words">0</span></p>
+                    <p>Từ sai: <span id="wrong-words">0</span></p>
+                </div>
+                <button class="close-btn" onclick="closeResult()">Thử lại</button>
+            </div>
         </div>
 
-        <div class="leaderboard-section">
-            <h3>🏆 BẢNG XẾP HẠNG TOÀN CẦU</h3>
+        <div id="auth-modal" class="overlay">
+            <div class="auth-card">
+                <h3>Tài khoản SpeedType</h3>
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="password" placeholder="Mật khẩu">
+                <div class="auth-btns">
+                    <button onclick="handleAuth('login')">Đăng nhập</button>
+                    <button onclick="handleAuth('signup')" class="secondary">Đăng ký</button>
+                </div>
+                <button class="cancel-btn" onclick="closeAuth()">Đóng</button>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏆 BẢNG XẾP HẠNG</h3>
             <table id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th>Hạng</th>
-                        <th>Người chơi</th>
-                        <th>WPM</th>
-                        <th>Quốc gia</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body"></tbody>
+                <thead><tr><th>#</th><th>Tên</th><th>WPM</th><th>Quốc gia</th></tr></thead>
+                <tbody id="leaderboard-data"></tbody>
             </table>
         </div>
     </div>
