@@ -2,79 +2,70 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>SpeedType Pro - Professional Typing Test</title>
+    <title>SpeedType Pro - Professional</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="top-nav">
-        <div class="lang-nav">
-            <button onclick="changeLang('vi')" id="lang-vi" class="active">Vietnamese</button>
-            <button onclick="changeLang('en')" id="lang-en">English</button>
+    <div class="header">
+        <div class="nav-left">
+            <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
+            <button onclick="changeLang('en')" id="btn-en">English</button>
         </div>
-        <div class="auth-nav" id="auth-status">
-            <button onclick="openModal('login-modal')">Đăng nhập</button>
-            <button onclick="openModal('reg-modal')" class="btn-reg">Đăng ký</button>
-        </div>
+        <div class="nav-right" id="user-info">
+            </div>
     </div>
 
-    <div class="main-container">
+    <div class="game-container">
         <div id="word-display" class="word-box"></div>
 
-        <div class="input-area">
-            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Bắt đầu gõ tại đây...">
+        <div class="input-panel">
+            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Gõ tại đây...">
             <div id="timer">1:00</div>
-            <button onclick="resetGame()" class="btn-refresh">↻</button>
+            <button onclick="resetGame()" class="btn-reset">↻</button>
         </div>
 
-        <div class="leaderboard-container">
-            <h3>🏆 BẢNG XẾP HẠNG TOP CAO THỦ</h3>
-            <table class="pro-table">
+        <div class="leaderboard-section">
+            <div class="lb-header">🏆 BẢNG XẾP HẠNG CAO THỦ</div>
+            <table class="lb-table">
                 <thead>
                     <tr>
-                        <th>Top</th>
-                        <th>Name</th>
+                        <th>TOP</th>
+                        <th>NAME</th>
                         <th>WPM</th>
-                        <th>Nation</th>
-                        <th>Language</th>
+                        <th>NATION</th>
+                        <th>LANGUAGE</th>
+                        <th>TIME</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body"></tbody>
             </table>
         </div>
-    </div>
 
-    <div id="login-modal" class="modal">
-        <div class="modal-card">
-            <h2>Đăng nhập</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-pass" placeholder="Mật khẩu">
-            <button onclick="handleAuth('login')">Vào hệ thống</button>
-            <button onclick="closeModal('login-modal')" class="btn-close">Đóng</button>
-        </div>
-    </div>
-
-    <div id="reg-modal" class="modal">
-        <div class="modal-card">
-            <h2>Tạo tài khoản mới</h2>
-            <input type="email" id="reg-email" placeholder="Email">
-            <input type="password" id="reg-pass" placeholder="Mật khẩu ít nhất 6 ký tự">
-            <button onclick="handleAuth('signup')" class="btn-reg">Xác nhận Đăng ký</button>
-            <button onclick="closeModal('reg-modal')" class="btn-close">Đóng</button>
-        </div>
-    </div>
-
-    <div id="result-modal" class="modal">
-        <div class="modal-card result-card">
-            <h2>Kết quả của bạn</h2>
-            <div class="res-grid">
-                <div class="res-item">WPM: <h1 id="res-wpm">0</h1></div>
-                <div class="res-item">Accuracy: <h2 id="res-acc">0%</h2></div>
+        <div class="auth-wrapper" id="auth-forms">
+            <div class="auth-box">
+                <h3>ĐĂNG NHẬP</h3>
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-pass" placeholder="Mật khẩu">
+                <button onclick="handleAuth('login')" class="btn-auth">Vào hệ thống</button>
             </div>
-            <p id="save-msg" style="color: #d9534f; font-weight: bold;"></p>
-            <button onclick="closeModal('result-modal'); resetGame()">Gõ lại bài mới</button>
+            <div class="auth-box">
+                <h3>ĐĂNG KÝ MỚI</h3>
+                <input type="email" id="reg-email" placeholder="Email">
+                <input type="password" id="reg-pass" placeholder="Mật khẩu (6 ký tự)">
+                <button onclick="handleAuth('signup')" class="btn-auth btn-reg">Tạo tài khoản</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="res-modal" class="modal">
+        <div class="modal-content">
+            <h2>KẾT QUẢ</h2>
+            <h1 id="res-wpm">0 WPM</h1>
+            <p id="res-msg"></p>
+            <button onclick="closeModal()">Đóng</button>
         </div>
     </div>
 
