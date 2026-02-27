@@ -1,11 +1,48 @@
-<script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>SpeedType Pro - Leaderboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="auth-box">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Mật khẩu">
+            <button onclick="handleAuth('signup')">Đăng ký</button>
+            <button onclick="handleAuth('login')">Đăng nhập</button>
+            <p id="user-info">Chưa đăng nhập</p>
+        </div>
 
-<div id="auth-section" style="margin-top: 20px;">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Mật khẩu">
-    <button onclick="handleSignUp(document.getElementById('email').value, document.getElementById('password').value)">Đăng ký</button>
-</div>
+        <hr>
+        <h1>⌨️ SPEED TYPE</h1>
+        <div id="word-display">Đang tải từ...</div>
+        <input type="text" id="word-input" placeholder="Gõ tại đây..." autofocus>
+        
+        <div class="stats">
+            <span>WPM: <b id="wpm">0</b></span>
+            <span>Thời gian: <b id="timer">60</b>s</span>
+        </div>
 
-<script src="script.js"></script>
+        <div id="leaderboard">
+            <h3>🏆 TOP GLOBAL</h3>
+            <table id="leaderboard-table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Hạng</th>
+                        <th>Email</th>
+                        <th>WPM</th>
+                        <th>Quốc gia</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
