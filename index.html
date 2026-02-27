@@ -2,71 +2,80 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>SpeedType Pro - Profile & Typing</title>
+    <title>SpeedType Pro - Profile Edition</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="header">
-        <div class="nav-left">
+    <div class="top-bar">
+        <div class="langs">
             <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
             <button onclick="changeLang('en')" id="btn-en">English</button>
         </div>
-        <div class="nav-right" id="user-status">
-            <span class="not-logged">Chưa đăng ký tài khoản</span>
+        <div id="user-header">
+            <span class="status-msg">Chưa đăng ký tài khoản</span>
         </div>
     </div>
 
-    <div class="game-container">
+    <div class="container">
         <div id="word-display" class="word-box"></div>
 
-        <div class="input-panel">
-            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Bắt đầu gõ...">
+        <div class="input-section">
+            <input type="text" id="word-input" autocomplete="off" autofocus placeholder="Bắt đầu gõ tại đây...">
             <div id="timer">1:00</div>
-            <button onclick="resetGame()" class="btn-reset">↻</button>
+            <button onclick="resetGame()" class="refresh-btn">↻</button>
         </div>
 
-        <div class="leaderboard-section">
-            <div class="lb-header">🏆 TOP CAO THỦ</div>
-            <table class="lb-table">
+        <div class="leaderboard">
+            <h3>🏆 TOP CAO THỦ</h3>
+            <table>
                 <thead>
-                    <tr><th>TOP</th><th>NAME</th><th>WPM</th><th>NATION</th><th>LANG</th><th>TIME</th></tr>
+                    <tr>
+                        <th>TOP</th>
+                        <th>NAME</th>
+                        <th>WPM</th>
+                        <th>NATION</th>
+                        <th>LANG</th>
+                        <th>TIME</th>
+                    </tr>
                 </thead>
                 <tbody id="leaderboard-body"></tbody>
             </table>
         </div>
 
-        <div id="profile-section" class="profile-card" style="display: none;">
-            <h3>HỒ SƠ CỦA BẠN</h3>
-            <p>📅 Tài khoản được tạo vào: <span id="p-created">...</span></p>
-            <p>👤 Tên tài khoản: <span id="p-name">...</span></p>
-            <p>🔑 Mật khẩu: <span>******</span></p>
-            <hr>
-            <h4>Đổi mật khẩu</h4>
-            <input type="password" id="old-pass" placeholder="Mật khẩu cũ">
-            <input type="password" id="new-pass" placeholder="Mật khẩu mới">
-            <button onclick="changePassword()" class="btn-change">Xác nhận đổi</button>
-            <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">Đăng xuất</button>
+        <div id="profile-card" class="card" style="display: none;">
+            <h2>HỒ SƠ CỦA BẠN</h2>
+            <p>📅 Ngày tạo: <span id="p-date"></span></p>
+            <p>👤 Tài khoản: <span id="p-email"></span></p>
+            <div class="pass-change">
+                <input type="password" id="old-p" placeholder="Mật khẩu cũ">
+                <input type="password" id="new-p" placeholder="Mật khẩu mới">
+                <button onclick="changePassword()">Đổi mật khẩu</button>
+            </div>
+            <button onclick="auth.signOut().then(()=>location.reload())" class="logout-btn">Đăng xuất</button>
         </div>
 
-        <div class="auth-wrapper" id="auth-forms">
-            <div class="auth-box login">
-                <h3>ĐĂNG NHẬP</h3>
+        <div id="auth-container" class="auth-tabs">
+            <div class="tab-headers">
+                <button id="tab-login" class="tab-btn active" onclick="switchAuth('login')">ĐĂNG NHẬP</button>
+                <button id="tab-reg" class="tab-btn" onclick="switchAuth('reg')">ĐĂNG KÝ</button>
+            </div>
+            
+            <div id="form-login" class="auth-form">
                 <input type="email" id="l-email" placeholder="Email">
                 <input type="password" id="l-pass" placeholder="Mật khẩu">
                 <button onclick="handleAuth('login')">Vào hệ thống</button>
             </div>
-            <div class="auth-box register">
-                <h3>ĐĂNG KÝ</h3>
+
+            <div id="form-reg" class="auth-form" style="display: none;">
                 <input type="email" id="r-email" placeholder="Email">
                 <input type="password" id="r-pass" placeholder="Mật khẩu">
-                <button onclick="handleAuth('signup')">Tạo tài khoản</button>
+                <button onclick="handleAuth('signup')" class="reg-submit">Tạo tài khoản</button>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
