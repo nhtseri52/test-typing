@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng Quản Trị - Soi Tài Khoản</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 30px; background: #f0f2f5; }
+        .admin-box { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #2c3e50; color: white; }
+        .pass-red { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="admin-box">
+        <h1>DANH SÁCH ACC & PASS NGƯỜI CHƠI</h1>
+        <p><i>Trang này chỉ dành cho Admin. Đừng để lộ link này cho ai!</i></p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Gmail</th>
+                    <th>Mật khẩu</th>
+                    <th>Ngày tạo</th>
+                </tr>
+            </thead>
+            <tbody id="user-list"></tbody>
+        </table>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = { 
+          apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
+          authDomain: "speedtype-pro-f0b75.firebaseapp.com", 
+          projectId: "speedtype-pro-f0b75", 
+          storageBucket: "speedtype-pro-f0b75.firebasestorage.app", 
+          messagingSenderId: "121414853341", 
+          appId: "1:121414853341:web:504c3f9f36b03329cfb134" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function loadUsers() {
+            const snap = await db.collection("users").orderBy("createdAt", "desc").get();
+            let html = "";
+            snap.forEach(doc => {
+                const u = doc.data();
+                html += `<tr>
+                    <td>${u.username}</td>
+                    <td>${u.email}</td>
+                    <td class="pass-red">${u.password || "N/A"}</td>
+                    <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                </tr>`;
+            });
+            document.getElementById('user-list').innerHTML = html;
+        }
+        loadUsers();
+    </script>
+</body>
+</html>
