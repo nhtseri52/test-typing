@@ -1,4 +1,4 @@
-// Dán Config Firebase của ông vào đây
+// Dán Firebase Config của ông vào đây
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
   authDomain: "speedtype-pro-f0b75.firebaseapp.com", 
@@ -11,20 +11,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// KHO TỪ VỰNG KHỔNG LỒ (Tôi đã thêm cực nhiều từ)
-const dictionary = {
-    vi: ["mình", "tin", "đất", "hay", "cổ", "tích", "dũng", "sinh", "định", "phải", "gió", "chim", "bướm", "hạt", "tên", "hãy", "khoa", "phố", "thanh", "niên", "mà", "lại", "đi", "trả", "người", "vui", "lá", "phần", "phân", "dũng", "rộng", "mây", "độ", "hệ", "trời", "mưa", "con", "chức", "lực", "năng", "khiển", "tương", "kiểm", "tính", "thực", "ứng", "dụng", "sông", "kho", "thành", "trữ", "phím", "trình", "tra", "liệu", "phát", "mềm", "nỗ", "tập", "thống", "mở", "nối", "điều", "nhân", "hoa", "núi", "biển", "triển", "năng", "lập", "công", "việt", "nam", "đường", "kiến", "thức", "xây", "dựng", "vững", "mạnh", "tâm", "hồn", "ánh", "sáng", "bình", "minh"],
+// KHO TỪ VỰNG KHỔNG LỒ (Thêm hàng trăm từ vào đây)
+const wordsList = {
+    vi: ["mình", "tin", "đất", "hay", "cổ", "tích", "dũng", "sinh", "định", "phải", "gió", "chim", "bướm", "hạt", "tên", "hãy", "khoa", "phố", "thanh", "niên", "mà", "lại", "đi", "trả", "người", "vui", "lá", "phần", "phân", "rộng", "mây", "độ", "hệ", "trời", "mưa", "con", "chức", "lực", "năng", "khiển", "tương", "kiểm", "tính", "thực", "ứng", "dụng", "sông", "kho", "thành", "trữ", "phím", "trình", "tra", "liệu", "phát", "mềm", "nỗ", "tập", "thống", "mở", "nối", "điều", "nhân", "hoa", "núi", "biển", "triển", "năng", "lập", "công", "việt", "nam", "đường", "kiến", "thức", "xây", "dựng", "vững", "mạnh", "tâm", "hồn", "ánh", "sáng", "bình", "minh"],
     en: ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "typing", "speed", "test", "coding", "future", "world", "light", "space", "star", "time", "work", "life", "challenge", "standard", "keyboard", "practice", "success", "develop", "system", "logic", "professional", "account", "profile", "password", "security", "database", "connection", "application", "software", "function", "storage", "analysis", "control", "member", "register", "login", "create", "update", "delete", "information", "national", "language", "energy", "power", "heavy", "simple", "complex", "history", "science", "physics", "nature"]
 };
 
 let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval;
-let cWords = 0, tKeys = 0, cKeys = 0, userLoc = "vn";
+let cWords = 0, userLoc = "vn";
 
 fetch('https://ipapi.co/json/').then(r => r.json()).then(d => userLoc = d.country_code.toLowerCase());
 
 function init() {
-    words = Array.from({length: 400}, () => dictionary[currentLang][Math.floor(Math.random() * dictionary[currentLang].length)]);
-    idx = 0; timer = 60; isPlaying = false; cWords = 0; tKeys = 0; cKeys = 0;
+    words = Array.from({length: 500}, () => wordsList[currentLang][Math.floor(Math.random() * wordsList[currentLang].length)]);
+    idx = 0; timer = 60; isPlaying = false; cWords = 0;
     clearInterval(interval);
     document.getElementById('timer').innerText = "1:00";
     document.getElementById('word-input').value = "";
@@ -33,14 +33,13 @@ function init() {
 }
 
 function render() {
-    const box = document.getElementById('word-display');
+    const box = document.getElementById('word-box');
     box.innerHTML = words.map((w, i) => `<span id="w-${i}">${w}</span>`).join(" ");
     document.getElementById(`w-0`).className = "active";
 }
 
 document.getElementById('word-input').addEventListener('input', (e) => {
     if(!isPlaying) { isPlaying = true; startTimer(); }
-    tKeys++;
     if(e.target.value.endsWith(" ")) {
         const typed = e.target.value.trim();
         const target = words[idx];
@@ -48,7 +47,7 @@ document.getElementById('word-input').addEventListener('input', (e) => {
 
         if(typed === target) {
             el.className = "correct";
-            cWords++; cKeys += target.length + 1;
+            cWords++;
         } else { el.className = "wrong"; }
         
         idx++;
@@ -73,16 +72,17 @@ function startTimer() {
 
 function finish() {
     const wpm = Math.round(cWords);
-    alert("Hết giờ! WPM của bạn: " + wpm);
+    document.getElementById('word-input').disabled = true;
     if(auth.currentUser) updateScore(wpm);
+    else alert("Please login to save your WPM!");
     init();
 }
 
-// Hàm cập nhật điểm (Sửa lỗi undefined Language)
+// Cập nhật điểm & Sửa lỗi undefined LANG
 async function updateScore(wpm) {
     const user = auth.currentUser;
-    const langName = currentLang === 'vi' ? "Vietnamese" : "English"; // Ép kiểu string rõ ràng
     const userRef = db.collection("leaderboard").doc(user.uid);
+    const langLabel = currentLang === 'vi' ? "Vietnamese" : "English";
     const doc = await userRef.get();
 
     if (!doc.exists || wpm > doc.data().wpm) {
@@ -90,61 +90,69 @@ async function updateScore(wpm) {
             name: user.email.split('@')[0],
             wpm: wpm,
             code: userLoc,
-            lang: langName, // Lưu dưới dạng chữ rõ ràng
+            lang: langLabel,
             date: Date.now()
         });
     }
     loadBoard();
 }
 
-// Đổi Tab Đăng nhập / Đăng ký
-function switchAuth(type) {
-    document.getElementById('form-login').style.display = type === 'login' ? 'block' : 'none';
-    document.getElementById('form-reg').style.display = type === 'reg' ? 'block' : 'none';
-    document.getElementById('tab-login').classList.toggle('active', type === 'login');
-    document.getElementById('tab-reg').classList.toggle('active', type === 'reg');
+// Load Top 100 World Rankings
+async function loadBoard() {
+    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(100).get();
+    let h = ""; let rank = 1;
+    snap.forEach(doc => {
+        const d = doc.data();
+        h += `<tr>
+            <td>${rank++}</td>
+            <td>${d.name}</td>
+            <td class="wpm-val">${d.wpm}</td>
+            <td><img src="https://flagcdn.com/20x15/${d.code}.png"></td>
+            <td>${d.lang || "English"}</td>
+            <td class="time-ago">Recently</td>
+        </tr>`;
+    });
+    document.getElementById('lb-body').innerHTML = h;
 }
 
 // Profile & Auth Status
 auth.onAuthStateChanged(u => {
     if(u) {
-        document.getElementById('user-header').innerHTML = `<button class="p-btn" onclick="toggleProfile()">Hồ sơ: ${u.email.split('@')[0]}</button>`;
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('p-email').innerText = u.email;
-        document.getElementById('p-date').innerText = new Date(u.metadata.creationTime).toLocaleDateString();
+        document.getElementById('user-nav').innerHTML = `<button class="p-btn" onclick="toggleProfile()">Profile: ${u.email.split('@')[0]}</button>`;
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('profile-panel').style.display = 'none'; // Ẩn mặc định, ấn nút mới hiện
+        document.getElementById('p-user').innerText = u.email;
+        document.getElementById('p-created').innerText = new Date(u.metadata.creationTime).toLocaleDateString();
     }
 });
 
 function toggleProfile() {
-    const card = document.getElementById('profile-card');
-    card.style.display = card.style.display === 'none' ? 'block' : 'none';
+    const p = document.getElementById('profile-panel');
+    p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+async function changePassword() {
+    const oldP = document.getElementById('old-p').value;
+    const newP = document.getElementById('new-p').value;
+    const user = auth.currentUser;
+    const cred = firebase.auth.EmailAuthProvider.credential(user.email, oldP);
+    try {
+        await user.reauthenticateWithCredential(cred);
+        await user.updatePassword(newP);
+        alert("Password updated!");
+    } catch (e) { alert("Old password incorrect!"); }
 }
 
 async function handleAuth(type) {
-    const e = document.getElementById(type === 'login' ? 'l-email' : 'r-email').value;
-    const p = document.getElementById(type === 'login' ? 'l-pass' : 'r-pass').value;
+    const email = document.getElementById(type === 'login' ? 'l-email' : 'r-email').value;
+    const pass = document.getElementById(type === 'login' ? 'l-pass' : 'r-pass').value;
     try {
-        if(type === 'signup') await auth.createUserWithEmailAndPassword(e, p);
-        else await auth.signInWithEmailAndPassword(e, p);
+        if(type === 'signup') await auth.createUserWithEmailAndPassword(email, pass);
+        else await auth.signInWithEmailAndPassword(email, pass);
         location.reload();
-    } catch (err) { alert("Lỗi: " + err.message); }
+    } catch (e) { alert(e.message); }
 }
 
-async function loadBoard() {
-    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(10).get();
-    let h = ""; let i = 1;
-    snap.forEach(doc => {
-        const d = doc.data();
-        h += `<tr>
-            <td>${i++}</td>
-            <td>${d.name}</td>
-            <td style="color:#5cb85c; font-weight:bold">${d.wpm}</td>
-            <td><img src="https://flagcdn.com/16x12/${d.code}.png"></td>
-            <td>${d.lang || "Unknown"}</td>
-            <td style="font-size:12px; color:#888">Vừa xong</td>
-        </tr>`;
-    });
-    document.getElementById('leaderboard-body').innerHTML = h;
-}
-
+function changeLang(l) { currentLang = l; init(); }
+function resetGame() { init(); }
 init(); loadBoard();
