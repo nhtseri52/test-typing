@@ -2,4 +2,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 
+<div id="auth-section" style="margin-top: 20px;">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mật khẩu">
+    <button onclick="handleSignUp(document.getElementById('email').value, document.getElementById('password').value)">Đăng ký</button>
+</div>
+
 <script src="script.js"></script>
