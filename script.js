@@ -1,9 +1,17 @@
-const firebaseConfig = { 
-  apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  authDomain: "testryping.vercel.app", // Thay bằng domain mới của ông
+// Dùng đúng cấu hình ông vừa đưa nhưng ép về kiểu Compat để chạy với code game
+const firebaseConfig = {
+  apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4",
+  authDomain: "http://testryping.vercel.app/", // Khi nào Vercel chạy thì đổi cái này sau
   projectId: "speedtype-pro-f0b75",
-  // ...giữ nguyên các phần khác
+  storageBucket: "speedtype-pro-f0b75.firebasestorage.app",
+  messagingSenderId: "121414853341",
+  appId: "1:121414853341:web:504c3f9f36b03329cfb134"
 };
+
+// Khởi tạo kiểu này để các lệnh auth.onAuthStateChanged() phía dưới không bị lỗi
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
