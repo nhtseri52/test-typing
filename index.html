@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedType Pro</title>
+    <title>SpeedType Pro - Google Auth</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -15,12 +15,12 @@
             <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
             <button onclick="changeLang('en')" id="btn-en">English</button>
         </div>
-        <div id="auth-status" class="nav-right"></div>
+        <div id="auth-status" class="nav-right">
+            </div>
     </div>
 
     <div class="container">
         <div id="word-display" class="word-box"></div>
-
         <div class="input-row">
             <input type="text" id="word-input" 
                    autocorrect="off" 
@@ -33,7 +33,7 @@
         </div>
 
         <div class="leaderboard-card">
-            <div class="lb-header">🏆 BẢNG XẾP HẠNG TOP CAO THỦ</div>
+            <div class="lb-header">🏆 TOP CAO THỦ</div>
             <div class="table-container">
                 <table>
                     <thead>
@@ -43,7 +43,6 @@
                             <th>WPM</th>
                             <th>NATION</th>
                             <th>LANG</th>
-                            <th>TIME</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboard-data"></tbody>
