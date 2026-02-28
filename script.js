@@ -1,75 +1,73 @@
-// Cấu hình Firebase đã đồng bộ với link Vercel của ông
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  authDomain: "test-typing-lac.vercel.app", 
+  authDomain: "test-typing-lac.vercel.app", // Link Vercel cũ của ông
   projectId: "speedtype-pro-f0b75", 
   storageBucket: "speedtype-pro-f0b75.firebasestorage.app", 
   messagingSenderId: "121414853341", 
   appId: "1:121414853341:web:504c3f9f36b03329cfb134" 
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-const dictionary = {
-    vi: ["mình", "tin", "đất", "cổ", "tích", "dũng", "sinh", "định", "phải", "gió", "chim", "bướm", "hạt", "tên", "hãy", "khoa", "phố", "thanh", "niên", "mà", "lại", "đi", "trả", "người", "vui", "lá", "phần", "phân", "rộng", "mây", "độ", "hệ", "trời", "mưa", "con", "chức", "lực", "năng", "khiển", "tương", "kiểm", "tính", "thực", "ứng", "dụng", "sông", "kho", "thành", "trữ", "phím", "trình", "tra", "liệu", "phát", "mềm", "nỗ", "tập", "thống", "mở", "nối", "điều", "nhân", "hoa", "núi", "biển", "triển", "năng", "lập", "công", "việt", "nam", "đường", "kiến", "thức", "xây", "dựng", "vững", "mạnh", "tâm", "hồn", "ánh", "sáng", "bình", "minh"],
-    en: ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "typing", "speed", "test", "coding", "future", "world", "light", "space", "star", "time", "work", "life", "challenge", "standard", "keyboard", "practice", "success", "develop", "system", "logic", "professional", "account", "profile", "password", "security", "database", "connection", "application", "software", "function", "storage", "analysis", "control", "member", "register", "login", "create", "update", "delete", "information", "national", "language", "energy", "power", "heavy", "simple", "complex", "history", "science", "physics", "nature"]
+const dict = {
+    vi: ["mình", "tin", "đất", "công", "biển", "nam", "phát", "trình", "liệu", "thanh", "niên", "hãy", "vững", "mạnh"],
+    en: ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "typing", "future", "coding", "logic"]
 };
 
-let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, cWords = 0;
+let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, correctWords = 0;
 
-// QUẢN LÝ TÀI KHOẢN - Đã bật Google, Email và Anonymous
-auth.onAuthStateChanged(async (user) => {
-    const section = document.getElementById('login-section');
-    const status = document.getElementById('auth-status');
+// --- 1. HỆ THỐNG AUTH & PROFILE ---
+auth.onAuthStateChanged(user => {
+    const info = document.getElementById('user-info');
     if (user) {
-        const doc = await db.collection("users").doc(user.uid).get();
-        const name = doc.exists ? doc.data().username : (user.displayName || "User");
-        status.innerHTML = `<span>● ${name}</span> <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
-        section.style.display = "none";
+        info.innerHTML = `<span>👤 ${user.displayName || 'Người dùng'}</span> <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
+        document.getElementById('auth-modal').style.display = 'none';
     } else {
-        showForm('login');
+        renderAuthForm('login');
+        document.getElementById('auth-modal').style.display = 'flex';
     }
-    loadBoard();
+    loadLeaderboard();
 });
 
-function showForm(type) {
-    const section = document.getElementById('login-section');
-    if(type === 'login') {
-        section.innerHTML = `<h3>ĐĂNG NHẬP</h3><input type="email" id="email" placeholder="Gmail"><input type="password" id="pass" placeholder="Mật khẩu"><button onclick="handleAuth('login')">Vào Game</button><p onclick="showForm('reg')">Chưa có acc? Đăng ký</p>`;
+function renderAuthForm(mode) {
+    const content = document.getElementById('auth-form-content');
+    if(mode === 'login') {
+        content.innerHTML = `<h3>ĐĂNG NHẬP</h3><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('login')">Vào Game</button><p onclick="renderAuthForm('reg')">Chưa có acc? Đăng ký</p>`;
     } else {
-        section.innerHTML = `<h3>ĐĂNG KÝ</h3><input type="text" id="user" placeholder="Username"><input type="email" id="email" placeholder="Gmail"><input type="password" id="pass" placeholder="Mật khẩu"><button onclick="handleAuth('reg')">Tạo tài khoản</button><p onclick="showForm('login')">Đã có acc? Đăng nhập</p>`;
+        content.innerHTML = `<h3>ĐĂNG KÝ</h3><input id="nick" placeholder="Tên hiển thị"><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('reg')">Tạo tài khoản</button><p onclick="renderAuthForm('login')">Đã có acc? Đăng nhập</p>`;
     }
 }
 
-async function handleAuth(mode) {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('pass').value;
+async function doAuth(mode) {
+    const email = document.getElementById('email').value, pw = document.getElementById('pw').value;
     try {
-        if (mode === 'reg') {
-            const username = document.getElementById('user').value;
-            const res = await auth.createUserWithEmailAndPassword(email, pass);
-            // Lưu thông tin để admin check
-            await db.collection("users").doc(res.user.uid).set({username: username, email: email, password: pass});
-        } else {
-            await auth.signInWithEmailAndPassword(email, pass);
-        }
+        if(mode === 'reg') {
+            const nick = document.getElementById('nick').value;
+            const res = await auth.createUserWithEmailAndPassword(email, pw);
+            await res.user.updateProfile({displayName: nick});
+            await db.collection("users").doc(res.user.uid).set({username: nick, bestWpm: 0});
+        } else { await auth.signInWithEmailAndPassword(email, pw); }
         location.reload();
-    } catch (e) { alert("Lỗi: " + e.message); }
+    } catch(e) { alert("Lỗi: " + e.message); }
 }
 
-// LOGIC GAME GÕ CHỮ
+// --- 2. QUẢNG CÁO TỰ ĐỘNG ---
+function refreshAds() {
+    const slots = ['ad-top', 'ad-left', 'ad-right', 'ad-bottom'];
+    slots.forEach(id => {
+        const el = document.getElementById(id);
+        el.innerHTML = `<div class="ad-wrapper"><button class="ad-x" onclick="this.parentElement.remove()">X</button><div class="ad-content">Quảng cáo AdSense</div></div>`;
+    });
+}
+
+// --- 3. LOGIC GAME & LEADERBOARD ---
 function init() {
-    words = Array.from({length: 400}, () => dictionary[currentLang][Math.floor(Math.random() * dictionary[currentLang].length)]);
-    idx = 0; timer = 60; isPlaying = false; cWords = 0;
+    words = Array.from({length: 100}, () => dict[currentLang][Math.floor(Math.random()*dict[currentLang].length)]);
+    idx = 0; timer = 60; isPlaying = false; correctWords = 0;
     clearInterval(interval);
     document.getElementById('timer').innerText = "1:00";
     document.getElementById('word-input').value = "";
-    render();
-}
-
-function render() {
     const box = document.getElementById('word-display');
     box.innerHTML = words.map((w, i) => `<span id="w-${i}">${w}</span>`).join(" ");
     document.getElementById(`w-0`).className = "active";
@@ -80,16 +78,10 @@ document.getElementById('word-input').addEventListener('input', (e) => {
     if(e.target.value.endsWith(" ")) {
         const typed = e.target.value.trim();
         const el = document.getElementById(`w-${idx}`);
-        if(typed === words[idx]) { el.className = "correct"; cWords++; } 
+        if(typed === words[idx]) { el.className = "correct"; correctWords++; }
         else { el.className = "wrong"; }
         idx++; e.target.value = "";
-        const next = document.getElementById(`w-${idx}`);
-        if(next) {
-            next.className = "active";
-            if(el.offsetTop < next.offsetTop) {
-                document.querySelectorAll('.correct, .wrong').forEach(n => n.style.display = 'none');
-            }
-        }
+        if(document.getElementById(`w-${idx}`)) document.getElementById(`w-${idx}`).className = "active";
     }
 });
 
@@ -97,39 +89,39 @@ function startTimer() {
     interval = setInterval(() => {
         timer--;
         document.getElementById('timer').innerText = `0:${timer < 10 ? '0'+timer : timer}`;
-        if(timer <= 0) { clearInterval(interval); finish(); }
+        if(timer <= 0) finish();
     }, 1000);
 }
 
 function finish() {
-    const wpm = Math.round(cWords);
-    if(auth.currentUser) saveBestScore(wpm);
-    else alert("Kết quả: " + wpm + " WPM. Đăng nhập để lưu Top!");
-    init();
+    clearInterval(interval);
+    const wpm = correctWords;
+    document.getElementById('final-wpm').innerText = wpm;
+    document.getElementById('result-modal').style.display = 'flex';
+    if(auth.currentUser) saveToLeaderboard(wpm);
+    refreshAds(); // Hiện quảng cáo mới khi xong
 }
 
-async function saveBestScore(wpm) {
+async function saveToLeaderboard(wpm) {
     const u = auth.currentUser;
-    const userDoc = await db.collection("users").doc(u.uid).get();
-    const name = userDoc.exists ? userDoc.data().username : (u.displayName || u.email.split('@')[0]);
-    const userRef = db.collection("leaderboard").doc(u.uid);
-    const doc = await userRef.get();
-    if (!doc.exists || wpm > doc.data().wpm) {
-        await userRef.set({ name: name, wpm: wpm, lang: currentLang === 'vi' ? "VN" : "EN", date: Date.now() });
+    const ref = db.collection("leaderboard").doc(u.uid);
+    const doc = await ref.get();
+    if(!doc.exists || wpm > doc.data().wpm) {
+        await ref.set({name: u.displayName, wpm: wpm, date: Date.now()});
     }
-    loadBoard();
+    loadLeaderboard();
 }
 
-async function loadBoard() {
-    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(10).get();
-    let h = ""; let r = 1; // Fix lỗi hiển thị bảng xếp hạng
-    snap.forEach(doc => {
-        const d = doc.data();
-        h += `<tr><td>${r++}</td><td>${d.name}</td><td>${d.wpm}</td><td>${d.lang || 'VN'}</td><td>Online</td></tr>`;
+async function loadLeaderboard() {
+    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(5).get();
+    let html = ""; let rank = 1;
+    snap.forEach(d => {
+        html += `<tr><td>${rank++}</td><td>${d.data().name}</td><td>${d.data().wpm}</td><td>Online</td></tr>`;
     });
-    document.getElementById('leaderboard-data').innerHTML = h;
+    document.getElementById('lb-data').innerHTML = html;
 }
 
+function closeResult() { document.getElementById('result-modal').style.display = 'none'; init(); }
 function changeLang(l) { currentLang = l; init(); }
 function resetGame() { init(); }
-init();
+window.onload = () => { init(); refreshAds(); };
