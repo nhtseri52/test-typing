@@ -1,6 +1,6 @@
+// Cấu hình Firebase đã đồng bộ với link Vercel của ông
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  // SỬA DÒNG NÀY: Dùng link Vercel cũ để không bị lỗi 404
   authDomain: "test-typing-lac.vercel.app", 
   projectId: "speedtype-pro-f0b75", 
   storageBucket: "speedtype-pro-f0b75.firebasestorage.app", 
@@ -8,10 +8,10 @@ const firebaseConfig = {
   appId: "1:121414853341:web:504c3f9f36b03329cfb134" 
 };
 
-// Khởi tạo Firebase kiểu Compat để chạy mượt với code game
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
 const dictionary = {
     vi: ["mình", "tin", "đất", "cổ", "tích", "dũng", "sinh", "định", "phải", "gió", "chim", "bướm", "hạt", "tên", "hãy", "khoa", "phố", "thanh", "niên", "mà", "lại", "đi", "trả", "người", "vui", "lá", "phần", "phân", "rộng", "mây", "độ", "hệ", "trời", "mưa", "con", "chức", "lực", "năng", "khiển", "tương", "kiểm", "tính", "thực", "ứng", "dụng", "sông", "kho", "thành", "trữ", "phím", "trình", "tra", "liệu", "phát", "mềm", "nỗ", "tập", "thống", "mở", "nối", "điều", "nhân", "hoa", "núi", "biển", "triển", "năng", "lập", "công", "việt", "nam", "đường", "kiến", "thức", "xây", "dựng", "vững", "mạnh", "tâm", "hồn", "ánh", "sáng", "bình", "minh"],
     en: ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "typing", "speed", "test", "coding", "future", "world", "light", "space", "star", "time", "work", "life", "challenge", "standard", "keyboard", "practice", "success", "develop", "system", "logic", "professional", "account", "profile", "password", "security", "database", "connection", "application", "software", "function", "storage", "analysis", "control", "member", "register", "login", "create", "update", "delete", "information", "national", "language", "energy", "power", "heavy", "simple", "complex", "history", "science", "physics", "nature"]
@@ -19,13 +19,13 @@ const dictionary = {
 
 let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, cWords = 0;
 
-// QUẢN LÝ TÀI KHOẢN (ĐĂNG KÝ LÀ XONG LUÔN)
+// QUẢN LÝ TÀI KHOẢN - Đã bật Google, Email và Anonymous
 auth.onAuthStateChanged(async (user) => {
     const section = document.getElementById('login-section');
     const status = document.getElementById('auth-status');
     if (user) {
         const doc = await db.collection("users").doc(user.uid).get();
-        const name = doc.exists ? doc.data().username : "User";
+        const name = doc.exists ? doc.data().username : (user.displayName || "User");
         status.innerHTML = `<span>● ${name}</span> <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
         section.style.display = "none";
     } else {
@@ -50,7 +50,7 @@ async function handleAuth(mode) {
         if (mode === 'reg') {
             const username = document.getElementById('user').value;
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            // Lưu để Admin soi pass
+            // Lưu thông tin để admin check
             await db.collection("users").doc(res.user.uid).set({username: username, email: email, password: pass});
         } else {
             await auth.signInWithEmailAndPassword(email, pass);
@@ -59,7 +59,7 @@ async function handleAuth(mode) {
     } catch (e) { alert("Lỗi: " + e.message); }
 }
 
-// LOGIC GÕ CHỮ
+// LOGIC GAME GÕ CHỮ
 function init() {
     words = Array.from({length: 400}, () => dictionary[currentLang][Math.floor(Math.random() * dictionary[currentLang].length)]);
     idx = 0; timer = 60; isPlaying = false; cWords = 0;
@@ -111,7 +111,7 @@ function finish() {
 async function saveBestScore(wpm) {
     const u = auth.currentUser;
     const userDoc = await db.collection("users").doc(u.uid).get();
-    const name = userDoc.exists ? userDoc.data().username : u.email.split('@')[0];
+    const name = userDoc.exists ? userDoc.data().username : (u.displayName || u.email.split('@')[0]);
     const userRef = db.collection("leaderboard").doc(u.uid);
     const doc = await userRef.get();
     if (!doc.exists || wpm > doc.data().wpm) {
@@ -122,10 +122,10 @@ async function saveBestScore(wpm) {
 
 async function loadBoard() {
     const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(10).get();
-    let h = ""; let r = 1; // Biến r fix lỗi NaN
+    let h = ""; let r = 1; // Fix lỗi hiển thị bảng xếp hạng
     snap.forEach(doc => {
         const d = doc.data();
-        h += `<tr><td>${r++}</td><td>${d.name}</td><td>${d.wpm}</td><td>${d.lang || 'VN'}</td><td>Vừa xong</td></tr>`;
+        h += `<tr><td>${r++}</td><td>${d.name}</td><td>${d.wpm}</td><td>${d.lang || 'VN'}</td><td>Online</td></tr>`;
     });
     document.getElementById('leaderboard-data').innerHTML = h;
 }
