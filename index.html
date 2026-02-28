@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpeedType Pro - Admin Mode</title>
+    <title>SpeedType Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -12,47 +12,30 @@
 <body>
     <div class="nav-bar">
         <div class="nav-left">
-            <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
-            <button onclick="changeLang('en')" id="btn-en">English</button>
+            <button onclick="changeLang('vi')" class="active">Vietnamese</button>
+            <button onclick="changeLang('en')">English</button>
         </div>
         <div id="auth-status" class="nav-right"></div>
     </div>
 
     <div class="container">
         <div id="word-display" class="word-box"></div>
-
         <div class="input-row">
-            <input type="text" id="word-input" 
-                   autocorrect="off" 
-                   autocapitalize="none" 
-                   spellcheck="false" 
-                   autocomplete="off" 
-                   autofocus placeholder="Bắt đầu gõ...">
+            <input type="text" id="word-input" autocorrect="off" autocapitalize="none" spellcheck="false" autocomplete="off" autofocus placeholder="Gõ tại đây...">
             <div id="timer">1:00</div>
-            <button onclick="resetGame()" class="refresh-btn">↻</button>
+            <button onclick="resetGame()">↻</button>
         </div>
 
-        <hr class="divider">
-
-        <div id="account-section" class="account-card">
-            </div>
+        <div id="login-area" class="login-card"></div>
 
         <div class="leaderboard-card">
-            <div class="lb-header">🏆 TOP CAO THỦ (TOP 100)</div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>TOP</th>
-                            <th>NAME</th>
-                            <th>WPM</th>
-                            <th>LANG</th>
-                            <th>STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboard-data"></tbody>
-                </table>
-            </div>
+            <div class="lb-header">🏆 TOP CAO THỦ</div>
+            <table>
+                <thead>
+                    <tr><th>TOP</th><th>NAME</th><th>WPM</th><th>LANG</th></tr>
+                </thead>
+                <tbody id="leaderboard-data"></tbody>
+            </table>
         </div>
     </div>
     <script src="script.js"></script>
