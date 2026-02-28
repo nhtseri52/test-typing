@@ -1,11 +1,15 @@
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  authDomain: "speedtype-pro-f0b75.firebaseapp.com", 
+  // SỬA DÒNG NÀY: Dùng link Vercel cũ để không bị lỗi 404
+  authDomain: "test-typing-lac.vercel.app", 
   projectId: "speedtype-pro-f0b75", 
   storageBucket: "speedtype-pro-f0b75.firebasestorage.app", 
   messagingSenderId: "121414853341", 
   appId: "1:121414853341:web:504c3f9f36b03329cfb134" 
 };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 // Khởi tạo kiểu này để các lệnh auth.onAuthStateChanged() phía dưới không bị lỗi
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
