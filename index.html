@@ -5,49 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SpeedType Pro - Full System</title>
     <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2159939441444456" crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <div class="nav-bar">
-        <div class="nav-left">
-            <button onclick="changeLang('vi')" id="btn-vi" class="active">Vietnamese</button>
-            <button onclick="changeLang('en')" id="btn-en">English</button>
+    <div id="ad-top" class="ad-h"></div> <div class="main-layout">
+        <div id="ad-left" class="ad-v"></div> <div class="container">
+            <div class="nav-bar">
+                <div class="langs">
+                    <button onclick="changeLang('vi')">Tiếng Việt</button>
+                    <button onclick="changeLang('en')">English</button>
+                </div>
+                <div id="user-info" class="user-info"></div> </div>
+
+            <div id="word-display" class="word-box"></div>
+
+            <div class="input-row">
+                <input type="text" id="word-input" autocapitalize="none" autocomplete="off" placeholder="Gõ để bắt đầu...">
+                <div id="timer">1:00</div>
+                <button onclick="resetGame()">↻</button>
+            </div>
+
+            <div id="auth-modal" class="modal">
+                <div class="modal-content" id="auth-form-content"></div>
+            </div>
+
+            <div id="result-modal" class="modal">
+                <div class="modal-content">
+                    <h2>KẾT QUẢ</h2>
+                    <div id="final-wpm" class="wpm-value">0</div>
+                    <p>Words Per Minute</p>
+                    <button onclick="closeResult()">LUYỆN TIẾP</button>
+                </div>
+            </div>
+
+            <div class="leaderboard-container">
+                <h3>🏆 BẢNG XẾP HẠNG CAO THỦ</h3>
+                <table>
+                    <thead><tr><th>TOP</th><th>TÊN</th><th>WPM</th><th>STATUS</th></tr></thead>
+                    <tbody id="lb-data"></tbody>
+                </table>
+            </div>
         </div>
-        <div id="auth-status" class="nav-right"></div>
-    </div>
 
-    <div class="container">
-        <div id="word-display" class="word-box"></div>
+        <div id="ad-right" class="ad-v"></div> </div>
 
-        <div class="input-row">
-            <input type="text" id="word-input" 
-                   autocorrect="off" autocapitalize="none" 
-                   spellcheck="false" autocomplete="off" 
-                   autofocus placeholder="Bắt đầu gõ...">
-            <div id="timer">1:00</div>
-            <button onclick="resetGame()" class="refresh-btn">↻</button>
-        </div>
-
-        <div id="login-section" class="login-card"></div>
-
-        <div class="leaderboard-card">
-            <div class="lb-header">🏆 BẢNG XẾP HẠNG TOP CAO THỦ</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>TOP</th>
-                        <th>NAME</th>
-                        <th>WPM</th>
-                        <th>LANG</th>
-                        <th>STATUS</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-data"></tbody>
-            </table>
-        </div>
-    </div>
-    <script src="script.js"></script>
+    <div id="ad-bottom" class="ad-h"></div> <script src="script.js"></script>
 </body>
 </html>
