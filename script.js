@@ -1,6 +1,6 @@
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  authDomain: "test-typing-lac.vercel.app", // Link Vercel cũ của ông
+  authDomain: "test-typing-lac.vercel.app", // Link Vercel đang chạy
   projectId: "speedtype-pro-f0b75", 
   storageBucket: "speedtype-pro-f0b75.firebasestorage.app", 
   messagingSenderId: "121414853341", 
@@ -15,27 +15,27 @@ const dict = {
     en: ["the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "typing", "future", "coding", "logic"]
 };
 
-let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, correctWords = 0;
+let currentLang = 'vi', words = [], idx = 0, timer = 60, isPlaying = false, interval, score = 0;
 
-// --- 1. HỆ THỐNG AUTH & PROFILE ---
+// --- 1. XỬ LÝ TÀI KHOẢN & HỒ SƠ ---
 auth.onAuthStateChanged(user => {
-    const info = document.getElementById('user-info');
+    const profile = document.getElementById('profile-area');
     if (user) {
-        info.innerHTML = `<span>👤 ${user.displayName || 'Người dùng'}</span> <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
+        profile.innerHTML = `<span>👤 ${user.displayName || 'Guest'}</span> <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
         document.getElementById('auth-modal').style.display = 'none';
     } else {
-        renderAuthForm('login');
+        renderAuth('login');
         document.getElementById('auth-modal').style.display = 'flex';
     }
-    loadLeaderboard();
+    loadLB();
 });
 
-function renderAuthForm(mode) {
-    const content = document.getElementById('auth-form-content');
+function renderAuth(mode) {
+    const form = document.getElementById('auth-form');
     if(mode === 'login') {
-        content.innerHTML = `<h3>ĐĂNG NHẬP</h3><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('login')">Vào Game</button><p onclick="renderAuthForm('reg')">Chưa có acc? Đăng ký</p>`;
+        form.innerHTML = `<h3>ĐĂNG NHẬP</h3><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('login')">Vào Game</button><p onclick="renderAuth('reg')">Chưa có acc? Đăng ký</p>`;
     } else {
-        content.innerHTML = `<h3>ĐĂNG KÝ</h3><input id="nick" placeholder="Tên hiển thị"><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('reg')">Tạo tài khoản</button><p onclick="renderAuthForm('login')">Đã có acc? Đăng nhập</p>`;
+        form.innerHTML = `<h3>ĐĂNG KÝ</h3><input id="nick" placeholder="Tên hiển thị"><input id="email" placeholder="Email"><input type="password" id="pw" placeholder="Mật khẩu"><button onclick="doAuth('reg')">Tạo tài khoản</button><p onclick="renderAuth('login')">Đã có acc? Đăng nhập</p>`;
     }
 }
 
@@ -46,25 +46,25 @@ async function doAuth(mode) {
             const nick = document.getElementById('nick').value;
             const res = await auth.createUserWithEmailAndPassword(email, pw);
             await res.user.updateProfile({displayName: nick});
-            await db.collection("users").doc(res.user.uid).set({username: nick, bestWpm: 0});
+            await db.collection("users").doc(res.user.uid).set({username: nick, best: 0});
         } else { await auth.signInWithEmailAndPassword(email, pw); }
         location.reload();
-    } catch(e) { alert("Lỗi: " + e.message); }
+    } catch(e) { alert(e.message); }
 }
 
-// --- 2. QUẢNG CÁO TỰ ĐỘNG ---
+// --- 2. HỆ THỐNG QUẢNG CÁO TỰ ĐỘNG ---
 function refreshAds() {
     const slots = ['ad-top', 'ad-left', 'ad-right', 'ad-bottom'];
     slots.forEach(id => {
         const el = document.getElementById(id);
-        el.innerHTML = `<div class="ad-wrapper"><button class="ad-x" onclick="this.parentElement.remove()">X</button><div class="ad-content">Quảng cáo AdSense</div></div>`;
+        el.innerHTML = `<div class="ad-wrapper"><button class="btn-x" onclick="this.parentElement.remove()">X</button><div class="ad-msg">Ads by Google</div></div>`;
     });
 }
 
-// --- 3. LOGIC GAME & LEADERBOARD ---
+// --- 3. LOGIC GAME & BẢNG XẾP HẠNG ---
 function init() {
     words = Array.from({length: 100}, () => dict[currentLang][Math.floor(Math.random()*dict[currentLang].length)]);
-    idx = 0; timer = 60; isPlaying = false; correctWords = 0;
+    idx = 0; timer = 60; isPlaying = false; score = 0;
     clearInterval(interval);
     document.getElementById('timer').innerText = "1:00";
     document.getElementById('word-input').value = "";
@@ -78,7 +78,7 @@ document.getElementById('word-input').addEventListener('input', (e) => {
     if(e.target.value.endsWith(" ")) {
         const typed = e.target.value.trim();
         const el = document.getElementById(`w-${idx}`);
-        if(typed === words[idx]) { el.className = "correct"; correctWords++; }
+        if(typed === words[idx]) { el.className = "correct"; score++; }
         else { el.className = "wrong"; }
         idx++; e.target.value = "";
         if(document.getElementById(`w-${idx}`)) document.getElementById(`w-${idx}`).className = "active";
@@ -95,24 +95,23 @@ function startTimer() {
 
 function finish() {
     clearInterval(interval);
-    const wpm = correctWords;
-    document.getElementById('final-wpm').innerText = wpm;
+    document.getElementById('final-wpm').innerText = score;
     document.getElementById('result-modal').style.display = 'flex';
-    if(auth.currentUser) saveToLeaderboard(wpm);
-    refreshAds(); // Hiện quảng cáo mới khi xong
+    if(auth.currentUser) saveLB(score);
+    refreshAds(); // Tự động hồi sinh quảng cáo
 }
 
-async function saveToLeaderboard(wpm) {
+async function saveLB(wpm) {
     const u = auth.currentUser;
     const ref = db.collection("leaderboard").doc(u.uid);
     const doc = await ref.get();
     if(!doc.exists || wpm > doc.data().wpm) {
         await ref.set({name: u.displayName, wpm: wpm, date: Date.now()});
     }
-    loadLeaderboard();
+    loadLB();
 }
 
-async function loadLeaderboard() {
+async function loadLB() {
     const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(5).get();
     let html = ""; let rank = 1;
     snap.forEach(d => {
