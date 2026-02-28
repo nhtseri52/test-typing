@@ -25,8 +25,8 @@ function init() {
     idx = 0; timer = 60; isPlaying = false; cWords = 0;
     clearInterval(interval);
     document.getElementById('timer').innerText = "1:00";
-    const input = document.getElementById('word-input');
-    input.value = ""; input.disabled = false;
+    document.getElementById('word-input').value = "";
+    document.getElementById('word-input').disabled = false;
     render();
 }
 
@@ -71,7 +71,6 @@ function finish() {
 
 async function saveBestScore(wpm) {
     const u = auth.currentUser;
-    // Lưu kỷ lục vào bảng leaderboard
     const userRef = db.collection("leaderboard").doc(u.uid);
     const doc = await userRef.get();
     if (!doc.exists || wpm > doc.data().wpm) {
@@ -86,30 +85,25 @@ async function saveBestScore(wpm) {
     loadBoard();
 }
 
-async function login() {
-    await auth.signInWithPopup(provider);
-    location.reload();
+async function loadBoard() {
+    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(100).get();
+    let h = ""; let r = 1; 
+    snap.forEach(doc => {
+        const d = doc.data();
+        h += `<tr><td>${r++}</td><td>${d.name}</td><td style="color:#28a745; font-weight:bold">${d.wpm}</td>
+        <td><img src="https://flagcdn.com/20x15/${d.code}.png"></td><td>${d.lang || "Vietnamese"}</td></tr>`;
+    });
+    document.getElementById('leaderboard-data').innerHTML = h;
 }
 
 auth.onAuthStateChanged((u) => {
     const status = document.getElementById('auth-status');
     if (u) {
-        status.innerHTML = `Hi, ${u.displayName} <button onclick="auth.signOut().then(()=>location.reload())">Thoát</button>`;
+        status.innerHTML = `<span style="color:#28a745">● ${u.displayName}</span> <button onclick="auth.signOut().then(()=>location.reload())" style="margin-left:10px">Thoát</button>`;
     } else {
-        status.innerHTML = `<button onclick="login()">Đăng nhập bằng Google</button>`;
+        status.innerHTML = `<button onclick="auth.signInWithPopup(provider).then(()=>location.reload())" class="google-btn">Đăng nhập Google</button>`;
     }
 });
-
-async function loadBoard() {
-    const snap = await db.collection("leaderboard").orderBy("wpm", "desc").limit(100).get();
-    let h = ""; let r = 1;
-    snap.forEach(doc => {
-        const d = doc.data();
-        h += `<tr><td>${r++}</td><td>${d.name}</td><td style="color:#28a745; font-weight:bold">${d.wpm}</td>
-        <td><img src="https://flagcdn.com/20x15/${d.code}.png"></td><td>${d.lang || "Vietnamese"}</td><td>Vừa xong</td></tr>`;
-    });
-    document.getElementById('leaderboard-data').innerHTML = h;
-}
 
 function changeLang(l) { currentLang = l; init(); }
 function resetGame() { init(); }
