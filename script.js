@@ -1,10 +1,8 @@
 const firebaseConfig = { 
   apiKey: "AIzaSyCrgepkYAgTAniQBrDRRqis470Aea6Stk4", 
-  authDomain: "flashtype.vn", 
+  authDomain: "testryping.vercel.app", // Thay bằng domain mới của ông
   projectId: "speedtype-pro-f0b75",
-  storageBucket: "speedtype-pro-f0b75.firebasestorage.app",
-  messagingSenderId: "121414853341",
-  appId: "1:121414853341:web:504c3f9f36b03329cfb134"
+  // ...giữ nguyên các phần khác
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
